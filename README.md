@@ -20,15 +20,21 @@ Graph Neural Network (GNN) based prediction of structural and electronic propert
 This project aims to predict various structural and electronic properties of materials using Graph Neural Networks (GNNs). It leverages data from the Materials Project database to create graph representations of crystal structures and then uses these graphs to train GNN models for property prediction.
 
 The properties predicted include:
+- Volume
+- Number of sites
 - Density
 - Bulk modulus
+- Shear modulus
 - Crystal system
 - Space group number
-- Energy per atom
+- Energy per atom (uncorrected and corrected)
 - Formation energy per atom
 - Energy above hull
 - Stability
 - Band gap
+- Conduction band minimum (CBM)
+- Valence band maximum (VBM)
+- Fermi energy
 
 ## Project Structure
 
@@ -49,6 +55,8 @@ GNN_prediction/
 │   └── (generated result plots)
 ├── trained_models/
 │   └── (saved model files)
+├── setup.py
+├── LICENSE
 └── README.md
 ```
 
@@ -70,7 +78,7 @@ To set up the project, follow these steps:
 
 3. Install the required packages:
    ```
-   pip install -r requirements.txt
+   pip install -e .
    ```
 
 Note: Make sure you have Python 3.7+ installed.
@@ -172,6 +180,4 @@ Contributions to this project are welcome. Please follow these steps:
 
 ## License
 
-[Specify the license under which this project is released]
-
----
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
