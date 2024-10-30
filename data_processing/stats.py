@@ -119,7 +119,7 @@ def plot_distributions(y_values_dict):
     for idx, (label, values) in enumerate(y_values_dict.items()):
         row = idx // num_cols
         col = idx % num_cols
-
+        ax = axes[row, col] if num_rows > 1 else axes[col]
         
         # Remove None values
         values = np.array([v for v in values if v is not None])
