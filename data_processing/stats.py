@@ -12,195 +12,247 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from scipy import stats as scipy_stats
 import seaborn as sns
+from matplotlib.ticker import ScalarFormatter
 
-def convert_graph_to_data(g, valid_y_indices):
-    y_labels = [g['y_labels'][i] for i in valid_y_indices]
-    y = torch.tensor(y_labels, dtype=torch.float)
-    return Data(x=None, edge_index=None, edge_attr=None, y=y)
-
-def analyze_y_label_statistics(data_list, y_idx, y_label):
-    y_values = [data.y[y_idx].item() for data in data_list]
-    
-    # Calculate statistics
-    mean = np.mean(y_values)
-    median = np.median(y_values)
-    std_dev = np.std(y_values)
-    variance = np.var(y_values)
-    skewness = scipy_stats.skew(y_values)
-    kurtosis = scipy_stats.kurtosis(y_values)
-    _, normality_p_value = scipy_stats.normaltest(y_values)
-
-    # Find the 5th and 95th percentiles
-    lower_bound = np.percentile(y_values, 5)
-    upper_bound = np.percentile(y_values, 95)
-
-    # Filter out the minority data
-    filtered_y_values = [y for y in y_values if lower_bound <= y <= upper_bound]
-
-    # Plotting histogram
-    plt.figure(figsize=(10, 6))
-    sns.histplot(y_values, kde=True, bins=100, stat='percent')
-    plt.title(f"Distribution of {y_label}")
-    plt.xlabel(y_label)
-    plt.ylabel("Percentage")
-    plt.savefig(f"{y_label}_distribution_filtered.png")
-    plt.close()
-
-    # Plotting histogram with full data for comparison
-    plt.figure(figsize=(10, 6))
-    sns.histplot(y_values, kde=True, bins=100, stat='percent')
-    plt.title(f"Distribution of {y_label}")
-    plt.xlabel(y_label)
-    plt.ylabel("Percentage")
-    plt.savefig(f"{y_label}_distribution_full.png")
-    plt.close()
-
-    return {
-        'Mean': mean,
-        'Median': median,
-        'Standard Deviation': std_dev,
-        'Variance': variance,
-        'Skewness': skewness,
-        'Kurtosis': kurtosis,
-        'Normality p-value': normality_p_value
-    }
-
-def analyze_covariance(y_values_dict):
-    labels = list(y_values_dict.keys())
-    data = np.array([y_values_dict[label] for label in labels]).T
-
-    cov_matrix = np.cov(data.T)
-    corr_matrix = np.corrcoef(data.T)
-
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', xticklabels=labels, yticklabels=labels)
-    plt.title("Correlation Matrix of Y Labels")
-    plt.tight_layout()
-    plt.savefig("y_labels_correlation_matrix.png")
-    plt.close()
-
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(cov_matrix, annot=True, cmap='viridis', xticklabels=labels, yticklabels=labels)
-    plt.title("Covariance Matrix of Y Labels")
-    plt.tight_layout()
-    plt.savefig("y_labels_covariance_matrix.png")
-    plt.close()
-
-
-def plot_statistics(stats_dict):
-    stat_names = ['Mean', 'Median', 'Standard Deviation', 'Variance', 'Skewness', 'Kurtosis']
-    y_labels = list(stats_dict.keys())
-    
-    # Create a DataFrame for easier plotting
-    data = []
-    for y_label in y_labels:
-        for stat in stat_names:
-            data.append({
-                'Y Label': y_label,
-                'Statistic': stat,
-                'Value': stats_dict[y_label][stat]
-            })
-    df = pd.DataFrame(data)
-    
-    # Create the plot
-    plt.figure(figsize=(15, 10))
-    sns.barplot(x='Statistic', y='Y Label', hue='Statistic', data=df, dodge=False)
-    
-    plt.title('Statistical Measures for Y Labels', fontsize=16)
-    plt.xlabel('Statistic', fontsize=12)
-    plt.ylabel('Y Label', fontsize=12)
-    plt.legend(title='Statistic', bbox_to_anchor=(1.05, 1), loc='upper left')
-    
-    plt.tight_layout()
-    plt.savefig('y_label_statistics_horizontal.png', bbox_inches='tight')
-    plt.close()
-
-    # Create individual plots for each statistic
-    for stat in stat_names:
-        plt.figure(figsize=(10, 6))
-        sns.barplot(x='Value', y='Y Label', data=df[df['Statistic'] == stat], orient='h')
-        
-        plt.title(f'{stat} for Y Labels', fontsize=16)
-        plt.xlabel('Value', fontsize=12)
-        plt.ylabel('Y Label', fontsize=12)
-        
-        plt.tight_layout()
-        plt.savefig(f'y_label_{stat.lower().replace(" ", "_")}.png')
-        plt.close()
-
-def analyze_stats(graphs):
-    y_label_names = ['volume',
-            'nsites',
-            'density',
-            'bulk_modulus',
-            'shear_modulus',
-            'crystal_number',
-            'space_group_number',
-            'uncorrected_energy_per_atom',
-            'energy_per_atom',
-            'formation_energy_per_atom',
-            'energy_above_hull',
-            'is_stable',
-            'band_gap',
-            'cbm',
-            'vbm',
-            'efermi']
-
-    valid_y_indices = [] #np.arange(len(y_label_names))#[]
-    for i, label_name in enumerate(y_label_names):
-        if all(g['y_labels'][i] is not None for g in graphs):
-            valid_y_indices.append(i)
-
-    valid_y_labels = [y_label_names[i] for i in valid_y_indices]
-    print(f"Valid y_labels: {valid_y_labels}")
-
-    data_list = [convert_graph_to_data(g, valid_y_indices) for g in tqdm(graphs, desc="Converting graphs to data objects")]
-
-    y_values_dict = {}
-    stats_dict = {}
-    
-    for y_idx, y_label in enumerate(valid_y_labels):
-        y_stats = analyze_y_label_statistics(data_list, y_idx, y_label)
-        stats_dict[y_label] = y_stats
-        y_values_dict[y_label] = [data.y[y_idx].item() for data in data_list]
-    
-    analyze_covariance(y_values_dict)
-    plot_statistics(stats_dict)  # New function to plot statistics as subplots
-
-    return
-
-
-
-def process_graphs():
-    crystal_types = ['cubic', 'hexagonal', 'trigonal', 'tetragonal', 'orthorhombic', 'monoclinic', 'triclinic']
-    feature_type = 'gnn'
-    graphs = []
-
-    for crystal_type in tqdm(crystal_types, desc="Reading graph files"):
-        graphs.extend(read_graph_file(crystal_type, feature_type))
-
-    print(f"Total number of graphs loaded: {len(graphs)}")
-    random.shuffle(graphs)
-    return graphs
-
-def read_graph_file(crystal_type, feature_type):
-    output_file = f'../graphs/graphs_{feature_type}_{crystal_type}.pkl'
+def read_and_count_graphs(output_file):
     try:
         with open(output_file, 'rb') as f:
             graphs = []
             while True:
                 try:
-                    graphs.append(pickle.load(f))
-                except EOFError:
+                    graph = pickle.load(f)
+                    graphs.append(graph)
+                except:
+                    #except EOFError:
                     break
+        print(f"Number of graphs in {output_file}: {len(graphs)}")
         return graphs
     except FileNotFoundError:
         print(f"File not found: {output_file}")
+        return []  # Returning an empty list instead of 0 for consistency in return type
+    except TypeError as e:
+        print(f"TypeError encountered: {e}")
         return []
+
+def process_graphs():
+    crystal_types = ['cubic', 'hexagonal', 'trigonal', 'tetragonal', 'orthorhombic', 'monoclinic', 'triclinic']
+    feature_types = ['gnn']
+    graphs = []
+
+    for crystal_type in crystal_types:
+
+        for feature_type in feature_types:
+            graph_ = None
+            output_file = f'./graphs_{feature_type}_{crystal_type}.pkl'
+            #output_file = f'../graphs/graphs_{feature_type}_{crystal_type}.pkl'
+            graph_ = read_and_count_graphs(output_file)
+            graphs.extend(graph_)
+
+    return graphs
+
+def analyze_stats(graphs):
+    plot_labels = ['V', 'n', 'ρ', 'B1', 'B2', 'B3', 'G1', 'G2', 'G3', 'CN', 'SGN', 'UE', 'E', 'FE', 'EAH', 'is_S', 'Eg', 'CBM', 'VBM', 'Ef']
+
+    print(f"Original number of graphs: {len(graphs)}")
+    y_values_dict = {label: [] for label in plot_labels}
+
+    for g in graphs:
+        for i, label in enumerate(plot_labels):
+            value = g['y_values'][i]
+            y_values_dict[label].append(value)
+
+    print(f"Valid y_labels: {list(y_values_dict.keys())}")
+
+    plot_distributions(y_values_dict)
+    plot_correlation_matrix(y_values_dict)
+    plot_covariance_matrix(y_values_dict)
+
+    return y_values_dict
+
+def plot_correlation_matrix(y_values_dict):
+    # Remove None values and convert to float
+    cleaned_dict = {k: v for k, v in y_values_dict.items() if any(x is not None and x < 2000 for x in v)}
+    
+    # Create a DataFrame, dropping any remaining NaN values
+    df = pd.DataFrame(cleaned_dict).dropna()
+    
+    # Calculate correlation matrix
+    corr_matrix = df.corr()
+
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(corr_matrix, annot=False, cmap='coolwarm', xticklabels=corr_matrix.columns, yticklabels=corr_matrix.columns)
+    #plt.title("Correlation Matrix of Y Labels")
+    plt.tight_layout()
+    plt.savefig("correlation_matrix.png")
+    plt.close()
+
+def plot_covariance_matrix(y_values_dict):
+    # Remove None values and convert to float
+    #cleaned_dict = {k: v for k, v in y_values_dict.items() if any(x is not None and x < 2000 for x in v)}
+    cleaned_dict = {k: v for k, v in y_values_dict.items() if any(x is not None for x in v)}
+    
+    # Create a DataFrame, dropping any remaining NaN values
+    df = pd.DataFrame(cleaned_dict).dropna()
+    
+    # Calculate covariance matrix
+    cov_matrix = df.cov()
+
+    plt.figure(figsize=(12, 10))
+
+    sns.heatmap(cov_matrix, annot=False, cmap='viridis', 
+                xticklabels=cov_matrix.columns, yticklabels=cov_matrix.columns,
+                vmin = -1e2, vmax=1e2)  # Set the maximum limit for the color bar
+    #plt.title("Covariance Matrix of Y Labels")
+    plt.tight_layout()
+    plt.savefig("covariance_matrix.png")
+    plt.close()
+
+def plot_distributions(y_values_dict):
+    #y_values_dict = {k: v for k, v in y_values_dict.items() if any(x is not None and x < 2000 for x in v)}
+    num_labels = len(y_values_dict)
+    num_cols = 4
+    num_rows = (num_labels + num_cols - 1) // num_cols
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(8, 8)) #figsize=(20, 5 * num_rows))
+    #fig.suptitle("Distributions of Y Labels", fontsize=20)
+    nbins = 300
+    for idx, (label, values) in enumerate(y_values_dict.items()):
+        row = idx // num_cols
+        col = idx % num_cols
+        if label not in ['n', 'CN', 'SGN', 'is_S']:
+            ax = axes[row, col] if num_rows > 1 else axes[col]
+        
+        # Remove None values
+        values = np.array([v for v in values if v is not None])
+        
+        if label in ['B1', 'B2', 'B3']:
+            x = values[(10<values)&(values<410)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label in ['G1', 'G2', 'G3']:
+            x = values[(10<values)&(values<230)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label == 'V':
+            x = values[(0<values)&(values<50)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label == 'n':
+            x = values[(0<values)&(values<50)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            #sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label== 'EAH':
+            x = values[(0<values)&(values<0.6)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label== 'Eg':
+            x = values[(0<values)&(values<5)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label in ['UE', 'E']:
+            x = values[(-40<values)&(values<0)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label == 'FE':
+            x = values[(-5<values)&(values<3)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label in ['VBM', 'CBM', 'Ef']:
+            x = values[(-5.1<values)&(values<12)]
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        elif label in ['CN', 'is_S', 'SGN']:
+            x = values 
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            #sns.histplot(x, kde=True, bins=7, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+        else:
+            x = values 
+            if len(x) < 300:
+                nbins = int(len(x) + (len(x)*0.1))
+            else:
+                nbins = 300 
+            sns.histplot(x, kde=True, bins=nbins, stat='density', ax=ax, color='brown')
+            print(f"Number of graphs for the data {label}: {len(x)}")
+
+     
+        #ax.set_title(label)
+        ax.set_xlabel(label)
+        ax.set_ylabel("a.u.")
+
+        # Set x and y axis to exponential format
+        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        #ax.ticklabel_format(axis='x', style='sci', scilimits=(0,0))
+        ax.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
+
+    # Remove empty subplots
+    for idx in range(num_labels, num_rows * num_cols):
+        row = idx // num_cols
+        col = idx % num_cols
+        if num_rows > 1:
+            fig.delaxes(axes[row, col])
+        else:
+            fig.delaxes(axes[col])
+
+    plt.tight_layout()
+    plt.savefig("distributions.png")
+    plt.close()
 
 def main():
     graphs = process_graphs()
-    analyze_stats(graphs)
+    y_values_dict = analyze_stats(graphs)
+
+    # You can add more analysis here if needed
 
 if __name__ == '__main__':
     main()
