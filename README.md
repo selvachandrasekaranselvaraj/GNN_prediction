@@ -2,19 +2,6 @@
 
 Graph Neural Network (GNN) based prediction of structural and electronic properties of materials.
 
-## Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Installation](#installation)
-3. [Usage](#usage)
-4. [Project Structure](#project-structure)
-5. [Data Processing](#data-processing)
-6. [Model Architecture](#model-architecture)
-7. [Training](#training)
-8. [Results](#results)
-9. [Contributing](#contributing)
-10. [License](#license)
-
 ## Project Overview
 
 GNN_prediction is a Python package designed to predict various structural and electronic properties of materials using Graph Neural Networks (GNNs). The project leverages data from the Materials Project database to create graph representations of crystal structures and then uses these graphs to train GNN models for property prediction.
@@ -49,7 +36,7 @@ To set up the project, follow these steps:
 2. Create a virtual environment and activate it:
    ```
    python -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\\Scripts\\activate`
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
    ```
 
 3. Install the required packages:
@@ -58,6 +45,30 @@ To set up the project, follow these steps:
    ```
 
 Note: Make sure you have Python 3.7+ installed.
+
+## Project Structure
+
+The project is organized as follows:
+
+```
+GNN_prediction/
+├── GNN_prediction/
+│   ├── __init__.py
+│   ├── requirements.txt
+│   ├── structures/
+│   │   └── structures.py
+│   ├── train/
+│   │   ├── graphs.py
+│   │   ├── train.py
+│   │   └── results_plots/
+│   │       └── plot_results.py
+│   └── stats/
+│       ├── plot.py
+│       └── stats.py
+├── README.md
+├── setup.py
+└── LICENSE.md
+```
 
 ## Usage
 
@@ -68,47 +79,16 @@ The project workflow consists of several steps:
 3. Analyzing the dataset statistics
 4. Training GNN models for property prediction
 
-To run the prediction process, use the `run_prediction.py` script:
-
-```
-python scripts/run_prediction.py
-```
-
-This script will process the data, generate graphs, and perform cross-validation using the components from the `gnn_prediction` package.
-
-## Project Structure
-
-The project is organized as follows:
-
-```
-GNN_prediction/
-├── gnn_prediction/
-│   ├── __init__.py
-│   ├── data_processing.py
-│   ├── graph_generation.py
-│   ├── model.py
-│   ├── train_test.py
-│   ├── utils.py
-│   └── main.py
-├── scripts/
-│   └── run_prediction.py
-├── tests/
-│   └── __init__.py
-├── README.md
-├── setup.py
-└── LICENSE.md
-```
-
 ## Data Processing
 
 ### Downloading Structures
 
 To download structures from the Materials Project:
 
-1. Set your Materials Project API key in the `MAPI_KEY` variable in `gnn_prediction/data_processing.py`.
+1. Set your Materials Project API key in the `MAPI_KEY` variable in `GNN_prediction/structures/structures.py`.
 2. Run the script:
    ```
-   python gnn_prediction/data_processing.py
+   python GNN_prediction/structures/structures.py
    ```
 
 This will download structures for different crystal systems and save them as pickle files.
@@ -117,9 +97,9 @@ This will download structures for different crystal systems and save them as pic
 
 To convert the downloaded structures to graph representations:
 
-1. Run the `graph_generation.py` script:
+1. Run the `graphs.py` script:
    ```
-   python gnn_prediction/graph_generation.py
+   python GNN_prediction/train/graphs.py
    ```
 
 This script will process the structures and create graph representations, saving them in the `graphs/` directory.
@@ -128,16 +108,16 @@ This script will process the structures and create graph representations, saving
 
 To analyze the statistics of the dataset:
 
-1. Run the `data_processing.py` script:
+1. Run the `stats.py` script:
    ```
-   python gnn_prediction/data_processing.py
+   python GNN_prediction/stats/stats.py
    ```
 
 This will generate various plots and statistics about the dataset, saving them in the `results_plots/` directory.
 
 ## Model Architecture
 
-The GNN model is defined in the `GNN` class in `gnn_prediction/model.py`. It consists of:
+The GNN model is defined in the `GNN` class in `GNN_prediction/train/train.py`. It consists of:
 
 - Multiple Graph Convolutional Network (GCN) layers
 - Global mean pooling
@@ -149,9 +129,9 @@ The model architecture can be customized by adjusting the `hidden_dim` and `num_
 
 To train the GNN models:
 
-1. Run the `train_test.py` script:
+1. Run the `train.py` script:
    ```
-   python gnn_prediction/train_test.py
+   python GNN_prediction/train/train.py
    ```
 
 This script will:
