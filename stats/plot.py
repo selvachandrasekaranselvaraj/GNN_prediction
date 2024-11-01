@@ -1,3 +1,20 @@
+"""
+This module provides functions for plotting various statistical visualizations for the GNN_prediction project.
+
+It includes functions to plot distribution plots, correlation matrices, and covariance matrices of the dataset.
+
+Functions:
+    clean_data: Helper function to clean the input data and return a DataFrame.
+    plot_matrices: Plot both covariance and correlation matrices.
+    plot_correlation_matrix: Plot the correlation matrix of the dataset.
+    plot_covariance_matrix: Plot the covariance matrix of the dataset.
+    plot_distributions: Plot distribution plots for each property in the dataset.
+    main: The main function to generate all plots.
+
+This module uses libraries such as Matplotlib, Seaborn, and Pandas for data visualization.
+Note: This module suppresses warnings to avoid cluttering the output.
+"""
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -170,4 +187,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

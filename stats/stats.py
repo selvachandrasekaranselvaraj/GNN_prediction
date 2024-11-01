@@ -14,6 +14,21 @@ from scipy import stats as scipy_stats
 import seaborn as sns
 from matplotlib.ticker import ScalarFormatter
 
+"""
+This module handles statistical analysis and visualization of the dataset for the GNN_prediction project.
+
+It includes functions to process graphs, analyze statistics, and generate various plots to visualize the data distribution and relationships.
+
+The module uses libraries such as NumPy, Pandas, Matplotlib, and Seaborn for data processing and visualization.
+
+Functions:
+    main: The main function to run the statistical analysis and generate plots.
+    process_graphs: Process and return graphs for analysis.
+    analyze_stats: Analyze statistics of the processed graphs and generate plots.
+
+Note: This module suppresses warnings to avoid cluttering the output.
+"""
+
 def read_and_count_graphs(output_file):
     try:
         with open(output_file, 'rb') as f:

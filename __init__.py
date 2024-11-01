@@ -1,8 +1,15 @@
 """
-GNN_prediction package for predicting materials properties using Graph Neural Networks.
+This module initializes the GNN_prediction package.
 
-This package contains modules for data processing, graph generation, model definition,
-training, and utility functions.
+It imports and exposes the main components of the package for easy access:
+    - DataProcessor: For processing input data.
+    - GraphGenerator: For generating graph representations of the data.
+    - GNN: The Graph Neural Network model.
+    - TrainTest: For training and testing the model.
+    - plot_results and save_results_to_csv: Utility functions for handling results.
+
+This module allows users to easily import the main components of the package using:
+    from gnn_prediction import DataProcessor, GraphGenerator, GNN, TrainTest, plot_results, save_results_to_csv
 """
 
 from .data_processing import DataProcessor

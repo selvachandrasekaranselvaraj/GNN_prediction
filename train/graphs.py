@@ -1,3 +1,17 @@
+"""
+This module handles graph processing and conversion for the GNN_prediction project.
+
+It includes functions to process graphs, clean data for specific y-labels, and convert graphs to PyTorch Geometric Data objects.
+
+Functions:
+    main: The main function to demonstrate graph processing and conversion.
+    process_graphs: Process and return graphs and their associated y-values.
+    clean_graphs_for_y_label: Clean graphs for a specific y-label.
+    convert_graphs_to_data_list: Convert graphs to a list of PyTorch Geometric Data objects.
+
+This module is typically used as a preprocessing step before training the GNN model.
+"""
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -121,4 +135,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

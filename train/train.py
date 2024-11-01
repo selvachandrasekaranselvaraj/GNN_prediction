@@ -1,3 +1,22 @@
+"""
+This module contains the main training logic for the GNN_prediction project.
+
+It includes the GNN model definition, training and validation functions, and the cross-validation process.
+The module uses PyTorch and PyTorch Geometric for implementing the Graph Neural Network.
+
+Classes:
+    GNN: The Graph Neural Network model.
+
+Functions:
+    train: Train the model for one epoch.
+    validate: Validate the model on the validation set.
+    save_results_to_csv: Save training results to a CSV file.
+    cross_validate: Perform cross-validation for a given property.
+    main: The main function to run the training process.
+
+The module also sets up logging to both a file and console for tracking the training progress.
+"""
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -213,4 +232,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

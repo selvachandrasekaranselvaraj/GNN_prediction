@@ -1,3 +1,19 @@
+"""
+This module handles the retrieval and processing of crystal structures from the Materials Project database.
+
+It uses the Materials Project API to download structures of various crystal systems and converts them into a dictionary format.
+
+Functions:
+    structures_from_mp: Retrieve structures from the Materials Project database for a given crystal system.
+    structure_to_dict: Convert a structure object to a dictionary format.
+    main: The main function to download and process structures for all crystal systems.
+
+Constants:
+    MAPI_KEY: The Materials Project API key for authentication.
+
+This module is typically run as a standalone script to create the initial dataset for the GNN_prediction project.
+"""
+
 from pymatgen.ext.matproj import MPRester
 import random
 import pickle
@@ -17,6 +33,7 @@ def structures_from_mp(api_key, crystal):
         )
         available_fields = mpr.materials.summary.available_fields
         return structures, available_fields
+
 def structure_to_dict(structure, crystal_number, available_fields):
     data = {}
     for field in available_fields:
