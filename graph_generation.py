@@ -1,10 +1,27 @@
+"""
+Module for generating graph representations from crystal structures.
+"""
+
 import torch
 from torch_geometric.data import Data
 from tqdm import tqdm
 
 class GraphGenerator:
+    """
+    Class for generating graph representations from crystal structures.
+    """
+
     @staticmethod
     def convert_graphs_to_data_list(graphs):
+        """
+        Convert graphs to a list of PyTorch Geometric Data objects.
+
+        Args:
+            graphs (list): List of graph dictionaries.
+
+        Returns:
+            tuple: A tuple containing the list of Data objects and valid y-labels.
+        """
         y_label_names = ['density', 'bulk_modulus', 'crystal_number', 'space_group_number',
                          'energy_per_atom', 'formation_energy_per_atom', 'energy_above_hull',
                          'is_stable', 'band_gap']
@@ -23,6 +40,16 @@ class GraphGenerator:
 
     @staticmethod
     def convert_graph_to_data(g, valid_y_indices):
+        """
+        Convert a single graph dictionary to a PyTorch Geometric Data object.
+
+        Args:
+            g (dict): Graph dictionary.
+            valid_y_indices (list): List of valid y-label indices.
+
+        Returns:
+            Data: PyTorch Geometric Data object.
+        """
         x = torch.tensor(g['node_features'], dtype=torch.float)
         edge_index = torch.tensor(g['edge_indices'], dtype=torch.long).t().contiguous()
         edge_attr = torch.tensor(g['edge_features'], dtype=torch.float).view(-1, 1)
