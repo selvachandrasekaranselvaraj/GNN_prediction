@@ -5,9 +5,9 @@ Graph Neural Network (GNN) based prediction of structural and electronic propert
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
-2. [Project Structure](#project-structure)
-3. [Installation](#installation)
-4. [Usage](#usage)
+2. [Installation](#installation)
+3. [Usage](#usage)
+4. [Project Structure](#project-structure)
 5. [Data Processing](#data-processing)
 6. [Model Architecture](#model-architecture)
 7. [Training](#training)
@@ -17,41 +17,24 @@ Graph Neural Network (GNN) based prediction of structural and electronic propert
 
 ## Project Overview
 
-This project aims to predict various structural and electronic properties of materials using Graph Neural Networks (GNNs). It leverages data from the Materials Project database to create graph representations of crystal structures and then uses these graphs to train GNN models for property prediction.
+GNN_prediction is a Python package designed to predict various structural and electronic properties of materials using Graph Neural Networks (GNNs). The project leverages data from the Materials Project database to create graph representations of crystal structures and then uses these graphs to train GNN models for property prediction.
 
 The properties predicted include:
-- Density
-- Bulk modulus
-- Crystal system
-- Space group number
-- Energy per atom
-- Formation energy per atom
-- Energy above hull
-- Stability
-- Band gap
-
-## Project Structure
-
-The project is organized as follows:
-
-```
-GNN_prediction/
-├── gnn_prediction/
-│   ├── __init__.py
-│   ├── data_processing.py
-│   ├── graph_generation.py
-│   ├── model.py
-│   ├── train_test.py
-│   ├── utils.py
-│   └── main.py
-├── scripts/
-│   └── run_prediction.py
-├── tests/
-│   └── __init__.py
-├── README.md
-├── setup.py
-└── LICENSE.md
-```
+- Volume (V)
+- Number of atoms (n)
+- Density (ρ)
+- Bulk modulus (B1, B2, B3)
+- Shear modulus (G1, G2, G3)
+- Coordination number (CN)
+- Space group number (SGN)
+- Energy per atom (UE, E)
+- Formation energy per atom (FE)
+- Energy above hull (EAH)
+- Stability (is_S)
+- Band gap (Eg)
+- Conduction band minimum (CBM)
+- Valence band maximum (VBM)
+- Fermi energy (Ef)
 
 ## Installation
 
@@ -85,7 +68,36 @@ The project workflow consists of several steps:
 3. Analyzing the dataset statistics
 4. Training GNN models for property prediction
 
-Each step is detailed in the following sections.
+To run the prediction process, use the `run_prediction.py` script:
+
+```
+python scripts/run_prediction.py
+```
+
+This script will process the data, generate graphs, and perform cross-validation using the components from the `gnn_prediction` package.
+
+## Project Structure
+
+The project is organized as follows:
+
+```
+GNN_prediction/
+├── gnn_prediction/
+│   ├── __init__.py
+│   ├── data_processing.py
+│   ├── graph_generation.py
+│   ├── model.py
+│   ├── train_test.py
+│   ├── utils.py
+│   └── main.py
+├── scripts/
+│   └── run_prediction.py
+├── tests/
+│   └── __init__.py
+├── README.md
+├── setup.py
+└── LICENSE.md
+```
 
 ## Data Processing
 
@@ -157,6 +169,7 @@ The training results for each property are saved as CSV files and plots in the `
 
 - Training and validation loss curves
 - Training and validation R² score curves
+- True vs. predicted value plots
 
 You can analyze these results to assess the model's performance for each property.
 
@@ -173,6 +186,4 @@ Contributions to this project are welcome. Please follow these steps:
 
 ## License
 
-[Specify the license under which this project is released]
-
----
+This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md) file for details.
