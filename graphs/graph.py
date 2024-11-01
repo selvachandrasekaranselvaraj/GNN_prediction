@@ -100,7 +100,8 @@ def main():
                 result = structure_to_graph(structure_dict, output_file, i)
                 if result:
                     successful_graphs += 1
-
+                    
+            print(f"Processed {i + 1} structures for {crystal_type} - {feature_type}")
             print(f"Saved {successful_graphs} graphs for {crystal_type} - {feature_type} to {output_file}")
 
 if __name__ == '__main__':
