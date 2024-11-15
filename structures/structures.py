@@ -22,7 +22,7 @@ import json
 
 print("Starting")
 
-MAPI_KEY = "kqVFipfnaDNK96Vtu1KV1Ff3bfyR5LZ9"
+MAPI_KEY = "...."
 
 def structures_from_mp(api_key, crystal):
     with MPRester(api_key) as mpr:
